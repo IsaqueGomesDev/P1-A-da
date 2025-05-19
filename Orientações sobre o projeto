@@ -8,8 +8,3 @@ CRUD Pedidos
 
 Oque se deve ter no BD de Pedidos:
 id_da_mesa, prato, status (em preparo, pronto, entregue), observações 
-
-CRUD Mesas
-
-Oque se deve ter no BD de Mesas:
-Numero_da_mesa, status (Reservada, Disponivel, Ocupada)
