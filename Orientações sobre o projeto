@@ -1,10 +1,38 @@
-CRUD Pratos
+CRUD Pratos{
 
-Oque se deve ter no BD de Pratos:
 nome, descrição, ingredientes, preço e categoria (entrada,
 prato principal, sobremesa, bebida)
 
-CRUD Pedidos
+}
 
-Oque se deve ter no BD de Pedidos:
-id_da_mesa, prato, status (em preparo, pronto, entregue), observações 
+CRUD Pedidos{
+
+id_da_mesa, prato, status (em preparo, pronto, entregue), observações
+
+}
+
+CRUD Pedidos_Pendentes{
+
+CRUD da aba de confirmação após adicionar os pratos no pedido{
+
+id_pratos, preco
+
+}}
+
+CRUD Usuario{
+
+Nome, Cpf, Usuario, email, senha
+
+}}
+
+CRUD Reserva_pendente{
+
+id_usuario, nome, cpf, id_mesa
+
+}
+
+CRUD Reserva_Definitiva{
+
+id_reserva
+
+}
