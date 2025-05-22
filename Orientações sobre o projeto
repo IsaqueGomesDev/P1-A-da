@@ -36,3 +36,27 @@ CRUD Reserva_Definitiva{
 id_reserva
 
 }
+
+
+O site terá um sistema de login para clientes e funcionários. A área dos funcionários contará com um login pré-definido, utilizando e-mail e senha.
+Já para os usuários (clientes), haverá a opção de cadastro e login.
+
+Na aba dos funcionários, será possível:
+
+-Adicionar pratos ao cardápio;
+
+-Disponibilizar, ocupar ou reservar mesas;
+
+-Adicionar e excluir mesas;
+
+-Adicionar pedidos e alterar o status dos pedidos;
+
+-Confirmar reservas de mesas feitas pelos clientes.
+
+Na área dos usuários, será possível:
+
+-Ver as mesas disponíveis e realizar reservas remotamente;
+
+-Consultar o cardápio e fazer pedidos online;
+
+-Acompanhar o status dos pedidos em tempo real.
