@@ -154,3 +154,10 @@ def excluir_cat():
   
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=80)
+
+
+
+
+{% for categoria in info %}
+                <li><a class="dropdown-item" href="{{url_for('inicio_cat', id=categoria['id'])}}">{{categoria['nome_da_categoria']}}</a></li>
+                {% endfor %}
