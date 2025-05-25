@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-attachment: fixed;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+}
+
+.navegacao {
+  box-shadow: 0 0 10px rgb(0, 0, 0, .2);
+  background-color: #20272e;
+  padding: 5px 20px;
+  display: flex;
+  align-items: center;
+  height: 80px;
+}
+.logo{
+  margin-top: 5px;
+  width: 120px;
+  height: auto;
+}
+.subtitulo a{
+  text-decoration: none; 
+  color:#20272e;
+  text-align: center;
+}
+.subtitulo a:hover {
+    color: #7f2121;
+}
+
+.login_campo{
+margin-top: 50px;
+width: 300px;
+height: auto;
+margin-left: 38%;
+}
+
+.conteudo{
+  display:flex;
+  flex-direction:row;
+}
+
+.logo_img{
+margin-left: 40%;
+}
+
+.hover-link:hover { 
+  background-color: rgba(204, 1, 1, 0.473); 
+  transition: all 0.3s ease; 
+}
+
+.conteiner{
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 30%;
+}
+
+.tabela{
+font-size:15px;
+display:flex;
+margin-bottom: 30px;
+}
+.tabela th{
+  padding: 30px;
+}
+.tabela td{
+  padding: 30px;
+  text-align: center;
+}
+
+.titulo {
+      display: flex;
+      align-items: center; 
+      gap: 16px;
+    }
+
+.titulo h1 {
+      text-align: center;
+    }
+  
+.adicionar h1{
+  margin-top:50px;
+  color:#7f2121;
+  font-size: 25px;
+}
+.adicionar{
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 50%;
+}
+.cadastro{
+  margin-top:30px;
+}
+
+.fazer_cadastro a {
+text-decoration: none; 
+color:#20272e;
+}
+
+.fazer_cadastro a:hover {
+    color: #7f2121;
+}
+
+.cards {
+  display: flex;
+  justify-content: center; 
+  gap: 60px;
+  padding: 20px;
+}
+
+.footer {
+  margin-top: 15%;
+  box-shadow: 0 0 10px rgb(0, 0, 0, .2);
+  background:#20272e;
+  padding: 10px 0;
+  display: flex;
+  justify-content: flex-end;  
+}
+
+.social-card {
+  width: 200px;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  margin-right: 50px;
+}
+
+.social-card h3 {
+  color: #fff;
+  font-size: 15px;
+}
+
+.social-icons{
+  display: flex;
+  justify-content: center;
+}
+.social-icons a{
+  text-decoration:none;
+  justify-content:center;
+  align-items:center;
+  display:inline-flex;
+  width:2rem;
+  height:2rem;
+  background:transparent;
+  border-radius:50%;
+  font-size:1.3rem;
+  border:#fff solid 1px;
+  color: #fff;
+  margin: 0 .4rem;
+  transition: 0.5s;
+}
+
+.social-icons a:hover{
+  border: #7f2121 solid 1px;
+  background: #7f2121;
+  color:#fff;
+}
