@@ -13,7 +13,7 @@ def get_connection():
     )
 
 # ----------------------------
-# Funções Cardápio
+# Funções
 # ----------------------------
 def listar_cardapio():
     conn = get_connection()
@@ -45,9 +45,6 @@ def excluir_item_cardapio(id_item):
         conn.close()
     return True
 
-# ----------------------------
-# Funções Mesas
-# ----------------------------
 def listar_mesas():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -82,9 +79,6 @@ def remover_mesa(id_mesa):
         conn.close()
     return True
 
-# ----------------------------
-# Funções Pedidos
-# ----------------------------
 def listar_pedidos():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -183,7 +177,7 @@ def excluir_item(id):
     cursor.execute('DELETE FROM categorias WHERE id = ?', (id,))
     conn.commit()
     conn.close()
-    return redirect('/cardapio')
+    return redirect('cardapio_listar')
 
 '''
 
@@ -209,7 +203,7 @@ def remover_mesa_route():
     remover_mesa(request.form['id'])
     return redirect('/mesas')
 
-'''
+
 @app.route('/pedidos', methods=['GET', 'POST'])
 def pedidos():
     if request.method == 'POST':
@@ -219,8 +213,8 @@ def pedidos():
             request.form['quantidade'],
             request.form['observacoes']
         )
-    return render_template_string(pedidos_html, pedidos=listar_pedidos(), mesas=listar_mesas(), cardapio=listar_cardapio())
-
+    return render_template_string('pedidos.html', pedidos=listar_pedidos(), mesas=listar_mesas(), cardapio=listar_cardapio())
+'''
 # ----------------------------
 # Executar servidor
 # ----------------------------
