@@ -108,7 +108,7 @@ def criar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
 
 @app.route('/')
 def index():
-    return render_template_string('tela_inicial.html')
+    return render_template('tela_inicial.html')
 
 @app.route('/login/cliente')
 def login_cliente():
@@ -131,15 +131,15 @@ def login_cliente():
     elif email_definitivo is not None and senha_definitiva is not None:
         if email == email_definitivo and senha==senha_definitiva:
             return redirect(url_for('inicio_cliente'))
-    return render_template_string('login_cliente.html', data)
+    return render_template('login_cliente.html', data)
 
 @app.route('/inicio/admin')
 def inicio_admin():
-    return render_template_string('admin.html')
+    return render_template('admin.html')
 
 @app.route('/inicio/cliente')
 def inicio_cliente():
-    return render_template_string('cliente.html')
+    return render_template('cliente.html')
 
 @app.route('/login/funcionario')
 def login_funcionario():
@@ -149,15 +149,15 @@ def login_funcionario():
     if email =="admin" and senha == "adm123":
         return redirect(url_for('inicio_admin'))
 
-    return render_template_string('login.html')
+    return render_template('login.html')
 
 @app.route('/cardapio', methods=['GET', 'POST'])
 def cardapio_listar():
     listar_cardapio()
-    return render_template_string('cardapio.html')
+    return render_template('cardapio.html')
 
 
-@app.route('/adicionar/cardapio')
+@app.route('/adicionar/cardapio', METHOD = ['GET', 'POST'])
 def cardapio():
     if request.method == 'POST':
         adicionar_item(
@@ -168,23 +168,23 @@ def cardapio():
             request.form['ingredientes']
         )
 
-    return render_template_string('adicionar_cardapio.html', cardapio=listar_cardapio())
+    return render_template('adicionar_cardapio.html', cardapio=listar_cardapio())
 
 @app.route('/excluir_item/<int:id>', methods=['POST'], )
 def excluir_item(id):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('DELETE FROM categorias WHERE id = ?', (id,))
+    cursor.execute('DELETE FROM cardapio WHERE id = ?', (id,))
     conn.commit()
     conn.close()
-    return redirect('cardapio_listar')
+    return redirect(url('cardapio_listar'))
 
 '''
 
 Em analise!!!!
 @app.route('/mesas', methods=['GET'])
 def mesas():
-    return render_template_string('mesas.html', mesas=listar_mesas())
+    return render_template('mesas.html', mesas=listar_mesas())
 
 
 @app.route('/adicionar_mesa', methods=['POST'])
@@ -213,7 +213,7 @@ def pedidos():
             request.form['quantidade'],
             request.form['observacoes']
         )
-    return render_template_string('pedidos.html', pedidos=listar_pedidos(), mesas=listar_mesas(), cardapio=listar_cardapio())
+    return render_template('pedidos.html', pedidos=listar_pedidos(), mesas=listar_mesas(), cardapio=listar_cardapio())
 '''
 # ----------------------------
 # Executar servidor
