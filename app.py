@@ -136,7 +136,7 @@ def login_cliente():
     
     elif email_definitivo is not None and senha_definitiva is not None:
         if email == email_definitivo and senha==senha_definitiva:
-            redirect(url_for('inicio_cliente'))
+            return redirect(url_for('inicio_cliente'))
     return render_template_string('login_cliente.html', data)
 
 @app.route('/inicio/admin')
@@ -153,11 +153,17 @@ def login_funcionario():
     senha = request.form.get('senha')
 
     if email =="admin" and senha == "adm123":
-        redirect(url_for('inicio_admin'))
+        return redirect(url_for('inicio_admin'))
 
     return render_template_string('login.html')
 
 @app.route('/cardapio', methods=['GET', 'POST'])
+def cardapio_listar():
+    listar_cardapio()
+    return render_template_string('cardapio.html')
+
+
+@app.route('/adicionar/cardapio')
 def cardapio():
     if request.method == 'POST':
         adicionar_item(
@@ -167,17 +173,25 @@ def cardapio():
             request.form['categoria'],
             request.form['ingredientes']
         )
-    return render_template_string('cardapio_html', cardapio=listar_cardapio())
 
-@app.route('/excluir_item', methods=['POST'])
-def excluir_item():
-    id_item = request.form['id']
-    excluir_item_cardapio(id_item)
+    return render_template_string('adicionar_cardapio.html', cardapio=listar_cardapio())
+
+@app.route('/excluir_item/<int:id>', methods=['POST'], )
+def excluir_item(id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('DELETE FROM categorias WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
     return redirect('/cardapio')
 
+'''
+
+Em analise!!!!
 @app.route('/mesas', methods=['GET'])
 def mesas():
-    return render_template_string(mesas_html, mesas=listar_mesas())
+    return render_template_string('mesas.html', mesas=listar_mesas())
+
 
 @app.route('/adicionar_mesa', methods=['POST'])
 def adicionar_mesa_route():
@@ -195,6 +209,7 @@ def remover_mesa_route():
     remover_mesa(request.form['id'])
     return redirect('/mesas')
 
+'''
 @app.route('/pedidos', methods=['GET', 'POST'])
 def pedidos():
     if request.method == 'POST':
