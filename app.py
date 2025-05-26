@@ -108,9 +108,54 @@ def criar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
     conn.commit()
     conn.close()
 
+# ---------------------------------
+# Rotas
+# ---------------------------------
+
 @app.route('/')
 def index():
-    return render_template_string(index_html)
+    return render_template_string('tela_inicial.html')
+
+@app.route('/login/cliente')
+def login_cliente():
+    conn = get_connection()
+
+    email = request.form.get('nome')
+    senha = request.form.get('senha')
+
+    cursor = conn.cursor(dictionary=True)
+
+    email_definitivo = cursor.execute("SELECT email FROM usuario WHERE email = ?", (email, ))
+    senha_definitiva = cursor.execute("SELECT senha FROM usuario WHERE email = ?", (email, ))
+
+    data = cursor.fetchall()
+    conn.close()
+
+    if email =="admin" and senha == "adm123":
+        redirect(url_for('inicio_admin'))
+    
+    elif email_definitivo is not None and senha_definitiva is not None:
+        if email == email_definitivo and senha==senha_definitiva:
+            redirect(url_for('inicio_cliente'))
+    return render_template_string('login_cliente.html', data)
+
+@app.route('/inicio/admin')
+def inicio_admin():
+    return render_template_string('admin.html')
+
+@app.route('/inicio/cliente')
+def inicio_cliente():
+    return render_template_string('cliente.html')
+
+@app.route('/login/funcionario')
+def login_funcionario():
+    email = request.form.get('nome')
+    senha = request.form.get('senha')
+
+    if email =="admin" and senha == "adm123":
+        redirect(url_for('inicio_admin'))
+
+    return render_template_string('login.html')
 
 @app.route('/cardapio', methods=['GET', 'POST'])
 def cardapio():
@@ -122,7 +167,7 @@ def cardapio():
             request.form['categoria'],
             request.form['ingredientes']
         )
-    return render_template_string(cardapio_html, cardapio=listar_cardapio())
+    return render_template_string('cardapio_html', cardapio=listar_cardapio())
 
 @app.route('/excluir_item', methods=['POST'])
 def excluir_item():
