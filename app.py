@@ -135,11 +135,23 @@ def login_cliente():
 
 @app.route('/inicio/admin')
 def inicio_admin():
-    return render_template('admin.html')
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    mesas = cursor.execute("SELECT * FROM mesa")
+    disponiveis = cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('admin.html', mesas=mesas, disponiveis=disponiveis)
 
 @app.route('/inicio/cliente')
 def inicio_cliente():
-    return render_template('cliente.html')
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM mesa")
+    disponiveis = cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('cliente.html', disponiveis=disponiveis)
 
 @app.route('/login/funcionario')
 def login_funcionario():
@@ -156,6 +168,10 @@ def cardapio_listar():
     listar_cardapio()
     return render_template('cardapio.html')
 
+@app.route('/cardapio/admin', methods=['GET', 'POST'])
+def cardapio_listar():
+    listar_cardapio()
+    return render_template('cardapio.html')
 
 @app.route('/adicionar/cardapio', METHOD = ['GET', 'POST'])
 def cardapio():
