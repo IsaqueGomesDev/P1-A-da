@@ -124,36 +124,37 @@ def cadastro():
     conn.close()
     return render_template('cadastro_cliente.html')
 
-@app.route('/login/cliente', methods = ['POST', 'GET'])
+@app.route('/login/cliente', methods=['GET', 'POST'])
 def login_cliente():
-    conn = get_connection()
     if request.method == 'POST':
         email = request.form.get('nome')
         senha = request.form.get('senha')
 
+        if email == "admin" and senha == "adm123":
+            return redirect(url_for('inicio_admin'))
+
+        conn = get_connection()
         cursor = conn.cursor(dictionary=True)
-
-        email_definitivo = cursor.execute("SELECT email FROM usuario WHERE email = %s", (email, ))
+        cursor.execute("SELECT email, senha FROM usuario WHERE email = %s", (email,))
         usuario = cursor.fetchone()
-        senha_definitiva = cursor.execute("SELECT senha FROM usuario WHERE email = %s", (email, ))
-        usuario = cursor.fetchone()
-    conn.close()
+        conn.close()
 
-    if email =="admin" and senha == "adm123":
-        return redirect(url_for('inicio_admin'))
-    
-    elif email_definitivo is not None and senha_definitiva is not None:
-        if email == email_definitivo and senha==senha_definitiva:
+        if usuario and usuario['senha'] == senha:
             return redirect(url_for('inicio_cliente'))
-    return render_template('login_cliente.html', data)
+
+    return render_template('login_cliente.html')
 
 @app.route('/inicio/admin')
 def inicio_admin():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    mesas = cursor.execute("SELECT * FROM mesa")
-    disponiveis = cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
-    data = cursor.fetchall()
+    
+    cursor.execute("SELECT * FROM mesa")    
+    mesas = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
+    disponiveis = cursor.fetchall()
+    
     conn.close()
     return render_template('admin.html', mesas=mesas, disponiveis=disponiveis)
 
@@ -161,20 +162,24 @@ def inicio_admin():
 def inicio_cliente():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
+    
     cursor.execute("SELECT * FROM mesa")
     mesas = cursor.fetchall()
-    disponiveis = cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
+
+    cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
     disponiveis = cursor.fetchall()
+    
     conn.close()
     return render_template('cliente.html', mesas=mesas, disponiveis=disponiveis)
 
-@app.route('/login/funcionario', methods = ['POST','GET'])
+@app.route('/login/funcionario', methods=['GET', 'POST'])
 def login_funcionario():
-    email = request.form.get('nome')
-    senha = request.form.get('senha')
+    if request.method == 'POST':
+        email = request.form.get('nome')
+        senha = request.form.get('senha')
 
-    if email =="admin" and senha == "adm123":
-        return redirect(url_for('inicio_admin'))
+        if email == "admin" and senha == "adm123":
+            return redirect(url_for('inicio_admin'))
 
     return render_template('login.html')
 
