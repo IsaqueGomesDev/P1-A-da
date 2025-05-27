@@ -110,6 +110,21 @@ def criar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
 def index():
     return render_template('tela_inicial.html')
 
+@app.route('/cadastro', METHOD['GET','POST']
+def cadastro():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    email = request.form.get('nome')
+    senha = request.form.get('senha')
+    usuario = request.form.get('usuario')
+    cpf = request.form.get('cpf')
+    
+    cursor.execute("INSERT INTO usuario(email, senha, usuario, cpf) VALUES (%s, %s, %s, %s)", (email, senha, usuario, cpf,)
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('cadastro_cliente.html')
+
 @app.route('/login/cliente')
 def login_cliente():
     conn = get_connection()
