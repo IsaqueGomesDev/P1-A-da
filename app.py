@@ -133,12 +133,10 @@ def login_cliente():
 
         cursor = conn.cursor(dictionary=True)
 
-        email_definitivo = cursor.execute("SELECT email FROM usuario WHERE email = ?", (email, ))
-        email_definitivo = cursor.fetchone()
-        senha_definitiva = cursor.execute("SELECT senha FROM usuario WHERE email = ?", (email, ))
-        senha_definitiva = cursor.fetchone()
-        
-        data = cursor.fetchall()
+        email_definitivo = cursor.execute("SELECT email FROM usuario WHERE email = %s", (email, ))
+        usuario = cursor.fetchone()
+        senha_definitiva = cursor.execute("SELECT senha FROM usuario WHERE email = %s", (email, ))
+        usuario = cursor.fetchone()
     conn.close()
 
     if email =="admin" and senha == "adm123":
@@ -167,9 +165,8 @@ def inicio_cliente():
     mesas = cursor.fetchall()
     disponiveis = cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
     disponiveis = cursor.fetchall()
-    data = cursor.fetchall()
     conn.close()
-    return render_template('cliente.html', disponiveis=disponiveis)
+    return render_template('cliente.html', mesas=mesas, disponiveis=disponiveis)
 
 @app.route('/login/funcionario', methods = ['POST','GET'])
 def login_funcionario():
@@ -184,15 +181,15 @@ def login_funcionario():
 @app.route('/cardapio', methods=['GET', 'POST'])
 def cardapio_listar():
     cardapio = listar_cardapio()
-    return render_template('cardapio.html')
+    return render_template('cardapio.html', cardapio=cardapio)
 
 @app.route('/cardapio/admin', methods=['GET', 'POST'])
 def cardapio_admin():
     cardapio = listar_cardapio()
-    return render_template('cardapio.html')
+    return render_template('cardapio.html', cardapio=cardapio)
 
 @app.route('/adicionar/cardapio', methods = ['GET', 'POST'])
-def cardapio():
+def adicionar_cardapio():
     if request.method == 'POST':
         adicionar_item(
             request.form['nome'],
