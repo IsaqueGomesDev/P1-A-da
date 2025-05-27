@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template_string
+from flask import Flask, request, redirect, render_template, url_for
 import mysql.connector
 
 app = Flask(__name__)
@@ -110,38 +110,39 @@ def criar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
 def index():
     return render_template('tela_inicial.html')
 
-@app.route('/cadastro', METHOD['GET','POST']
+@app.route('/cadastro', methods = ['GET','POST'])
 def cadastro():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
+    if request.method == 'POST':
+        email = request.form.get('nome')
+        senha = request.form.get('senha')
+        usuario = request.form.get('usuario')
+        cpf = request.form.get('cpf')
     
-    email = request.form.get('nome')
-    senha = request.form.get('senha')
-    usuario = request.form.get('usuario')
-    cpf = request.form.get('cpf')
-    
-    cursor.execute("INSERT INTO usuario(email, senha, usuario, cpf) VALUES (%s, %s, %s, %s)", (email, senha, usuario, cpf,)
-    data = cursor.fetchall()
+        cursor.execute("INSERT INTO usuario(email, senha, usuario, cpf) VALUES (%s, %s, %s, %s)", (email, senha, usuario, cpf,))
     conn.close()
     return render_template('cadastro_cliente.html')
 
-@app.route('/login/cliente')
+@app.route('/login/cliente', methods = ['POST', 'GET'])
 def login_cliente():
     conn = get_connection()
+    if request.method == 'POST':
+        email = request.form.get('nome')
+        senha = request.form.get('senha')
 
-    email = request.form.get('nome')
-    senha = request.form.get('senha')
+        cursor = conn.cursor(dictionary=True)
 
-    cursor = conn.cursor(dictionary=True)
-
-    email_definitivo = cursor.execute("SELECT email FROM usuario WHERE email = ?", (email, ))
-    senha_definitiva = cursor.execute("SELECT senha FROM usuario WHERE email = ?", (email, ))
-
-    data = cursor.fetchall()
+        email_definitivo = cursor.execute("SELECT email FROM usuario WHERE email = ?", (email, ))
+        email_definitivo = cursor.fetchone()
+        senha_definitiva = cursor.execute("SELECT senha FROM usuario WHERE email = ?", (email, ))
+        senha_definitiva = cursor.fetchone()
+        
+        data = cursor.fetchall()
     conn.close()
 
     if email =="admin" and senha == "adm123":
-        redirect(url_for('inicio_admin'))
+        return redirect(url_for('inicio_admin'))
     
     elif email_definitivo is not None and senha_definitiva is not None:
         if email == email_definitivo and senha==senha_definitiva:
@@ -163,12 +164,14 @@ def inicio_cliente():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM mesa")
+    mesas = cursor.fetchall()
     disponiveis = cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
+    disponiveis = cursor.fetchall()
     data = cursor.fetchall()
     conn.close()
     return render_template('cliente.html', disponiveis=disponiveis)
 
-@app.route('/login/funcionario')
+@app.route('/login/funcionario', methods = ['POST','GET'])
 def login_funcionario():
     email = request.form.get('nome')
     senha = request.form.get('senha')
@@ -180,15 +183,15 @@ def login_funcionario():
 
 @app.route('/cardapio', methods=['GET', 'POST'])
 def cardapio_listar():
-    listar_cardapio()
+    cardapio = listar_cardapio()
     return render_template('cardapio.html')
 
 @app.route('/cardapio/admin', methods=['GET', 'POST'])
-def cardapio_listar():
-    listar_cardapio()
+def cardapio_admin():
+    cardapio = listar_cardapio()
     return render_template('cardapio.html')
 
-@app.route('/adicionar/cardapio', METHOD = ['GET', 'POST'])
+@app.route('/adicionar/cardapio', methods = ['GET', 'POST'])
 def cardapio():
     if request.method == 'POST':
         adicionar_item(
@@ -205,10 +208,10 @@ def cardapio():
 def excluir_item(id):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('DELETE FROM cardapio WHERE id = ?', (id,))
+    cursor.execute('DELETE FROM cardapio WHERE id = %s', (id,))
     conn.commit()
     conn.close()
-    return redirect(url('cardapio_listar'))
+    return redirect(url_for('cardapio_listar'))
 
 '''
 
