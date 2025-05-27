@@ -198,28 +198,6 @@ def excluir_item(id):
 '''
 
 Em analise!!!!
-@app.route('/mesas', methods=['GET'])
-def mesas():
-    return render_template('mesas.html', mesas=listar_mesas())
-
-
-@app.route('/adicionar_mesa', methods=['POST'])
-def adicionar_mesa_route():
-    numero = request.form['numero']
-    adicionar_mesa(numero)
-    return redirect('/mesas')
-
-@app.route('/atualizar_mesa', methods=['POST'])
-def atualizar_mesa():
-    atualizar_status_mesa(request.form['id'], request.form['status'] == '1')
-    return redirect('/mesas')
-
-@app.route('/remover_mesa', methods=['POST'])
-def remover_mesa_route():
-    remover_mesa(request.form['id'])
-    return redirect('/mesas')
-
-
 @app.route('/pedidos', methods=['GET', 'POST'])
 def pedidos():
     if request.method == 'POST':
