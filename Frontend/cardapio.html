@@ -24,7 +24,7 @@
           </a>
         </li>
         <li>
-          <a href="cardapio.html" class="nav-link text-white hover-link" class="texto">
+          <a href="/cardapio/admin" class="nav-link text-white hover-link" class="texto">
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
           Cardápio
           </a>
@@ -38,12 +38,8 @@
       </ul>
       <hr>
       <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="img/user_icon.png" alt="User" width="32" height="32" class="rounded-circle me-2">
-          <strong>Administrador</strong>
-        </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="login.html">Deslogar</a></li>
+          <li><a class="dropdown-item" href="/login/funcionario">Deslogar</a></li>
         </ul>
       </div>
     </div>
@@ -51,7 +47,7 @@
      <div class="conteiner">
      <div class="titulo" style="margin-top: 20px; margin-bottom: 15px;">
       <h1>Cardápio</h1>
-      <a href="adicionar_cardapio.html" style="margin-left: 45%;  position: fixed;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
+      <a href="/adicionar/cardapio" style="margin-left: 45%;  position: fixed;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
      </div>
      <div class="tabela">
       <div class="tabela border">
@@ -70,7 +66,7 @@
               </button>
             </form>
           </td>
-          <td><form action="#" method="post" style="display: inline;">
+          <td><form action="/excluir_item/{{}}" method="post" style="display: inline;">
               <button type="submit" class="btn btn-danger">
                   <span><i class="fas fa-trash"></i></span>
                   <span id="excluir"> Excluir</span>
