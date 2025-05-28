@@ -1,5 +1,5 @@
-from flask import Flask, request, redirect, render_template_string
-import mysql.connector
+from flask import Flask, request, redirect, render_template_string, render_template, mysql
+
 
 app = Flask(__name__)
 
@@ -105,11 +105,11 @@ def criar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
 # ---------------------------------
 # Rotas
 # ---------------------------------
-
+#Gostaria de discutir a padronização das nomeclaturas utilizadas no código e ao nomear os arquivos.
 @app.route('/')
 def index():
     return render_template('tela_inicial.html')
-
+#acredito que seja interessante inserir uma mensagem de erro. Gostaria de saber qual o motivo não é buscado o email e senha no banco?
 @app.route('/login/cliente')
 def login_cliente():
     conn = get_connection()
@@ -150,7 +150,7 @@ def login_funcionario():
         return redirect(url_for('inicio_admin'))
 
     return render_template('login.html')
-
+#é necessário utilizar o metódo POST em rota que deveria apenas listar o cardápio? Não entendi a utilização de duas funções nesta rota.
 @app.route('/cardapio', methods=['GET', 'POST'])
 def cardapio_listar():
     listar_cardapio()
@@ -167,7 +167,7 @@ def cardapio():
             request.form['categoria'],
             request.form['ingredientes']
         )
-
+#gostaria de saber o motivo da função ter apenas o POST, mas utilizar um GET também? O redirecionamento não deveria ser para uma url?
     return render_template('adicionar_cardapio.html', cardapio=listar_cardapio())
 
 @app.route('/excluir_item/<int:id>', methods=['POST'], )
