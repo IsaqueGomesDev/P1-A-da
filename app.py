@@ -140,11 +140,13 @@ def login_cliente():
 
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT email, senha FROM usuario WHERE email = %s", (email,))
+        cursor.execute("SELECT id, email, senha FROM usuario WHERE email = %s", (email,))
         usuario = cursor.fetchone()
         conn.close()
 
         if usuario and usuario['senha'] == senha:
+            global usuario_id
+            usuario_id = usuario['id']
             return redirect(url_for('inicio_cliente'))
 
     return render_template('login_cliente.html')
@@ -231,11 +233,24 @@ def excluir_item(id):
     conn.commit()
     conn.close()
     return redirect(url_for('cardapio_listar'))
-
-
+'''
+Em analise
+#id da mesa
+@app.route('/editar/reserva', methods=['GET', 'POST'])
+def editar_reserva():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    nome = request.form['nome'],
+    cpf = request.form.get['cpf']
+    cursor.execute('UPDATE reserva SET nome = %s, cpf = %s WHERE id = %s', (nome,cpf,usuario_id))
+    conn.commit()
+    conn.close()
+    return render_template('editar_reserva.html')
+'''
 '''
 
 Em analise!!!!
+#analisar a logica
 @app.route('/pedidos', methods=['GET', 'POST'])
 def pedidos():
     if request.method == 'POST':
