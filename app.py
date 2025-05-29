@@ -5,13 +5,17 @@ app = Flask(__name__)
 
 # Conexão com banco
 def get_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="#Thay10121926",
-        database="restaurante"
-    )
-
+    try:
+        return mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="#Thay10121926",
+            database="restaurante",
+            port="3306"
+        )
+    except mysql.connector.Error as err:
+        print(f"Erro de conexão: {err}")
+        raise
 # ----------------------------
 # Funções
 # ----------------------------
@@ -23,7 +27,7 @@ def listar_cardapio():
     conn.close()
     return data
 
-def adicionar_item(nome, preco, descricao, categoria, ingredientes):
+def criar_item(nome, preco, descricao, categoria, ingredientes):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -53,7 +57,7 @@ def listar_mesas():
     conn.close()
     return data
 
-def adicionar_mesa(numero):
+def criar_mesa(numero):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO mesa (numero) VALUES (%s)", (numero,))
@@ -121,6 +125,7 @@ def cadastro():
         cpf = request.form.get('cpf')
     
         cursor.execute("INSERT INTO usuario(email, senha, usuario, cpf) VALUES (%s, %s, %s, %s)", (email, senha, usuario, cpf,))
+        conn.commit()
     conn.close()
     return render_template('cadastro_cliente.html')
 
@@ -146,30 +151,33 @@ def login_cliente():
 
 @app.route('/inicio/admin')
 def inicio_admin():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    
-    cursor.execute("SELECT * FROM mesa")    
-    mesas = cursor.fetchall()
+    try:
+        with get_connection() as conn:
+            with conn.cursor(dictionary=True) as cursor:
+                cursor.execute("SELECT * FROM mesa")    
+                mesas = cursor.fetchall()
 
-    cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
-    disponiveis = cursor.fetchall()
-    
-    conn.close()
-    return render_template('admin.html', mesas=mesas, disponiveis=disponiveis)
+                cursor.execute("SELECT * FROM mesa WHERE ocupada = 0")
+                disponiveis = cursor.fetchall()
+                
+                return render_template('admin.html', mesas=mesas, disponiveis=disponiveis)
+    except Exception as e:
+        return f"Erro ao carregar admin: {e}", 500
 
 @app.route('/inicio/cliente')
 def inicio_cliente():
+    
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     
     cursor.execute("SELECT * FROM mesa")
     mesas = cursor.fetchall()
 
-    cursor.execute("SELECT * FROM mesa WHERE ocupada = 'disponivel'")
+    cursor.execute("SELECT * FROM mesa WHERE ocupada = 0")
     disponiveis = cursor.fetchall()
     
     conn.close()
+    
     return render_template('cliente.html', mesas=mesas, disponiveis=disponiveis)
 
 @app.route('/login/funcionario', methods=['GET', 'POST'])
@@ -179,8 +187,17 @@ def login_funcionario():
         senha = request.form.get('senha')
 
         if email == "admin" and senha == "adm123":
+            try:
+                conn = get_connection()
+                if conn.is_connected():
+                    conn.close()
+            except:
+                pass
+            
             return redirect(url_for('inicio_admin'))
-
+        else:
+            return render_template('login.html')
+    
     return render_template('login.html')
 
 @app.route('/cardapio', methods=['GET', 'POST'])
@@ -196,7 +213,7 @@ def cardapio_admin():
 @app.route('/adicionar/cardapio', methods = ['GET', 'POST'])
 def adicionar_cardapio():
     if request.method == 'POST':
-        adicionar_item(
+        criar_item(
             request.form['nome'],
             float(request.form['preco']),
             request.form['descricao'],
@@ -214,6 +231,7 @@ def excluir_item(id):
     conn.commit()
     conn.close()
     return redirect(url_for('cardapio_listar'))
+
 
 '''
 
