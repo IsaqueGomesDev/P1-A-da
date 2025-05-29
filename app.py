@@ -200,11 +200,6 @@ def login_funcionario():
     
     return render_template('login.html')
 
-@app.route('/cardapio', methods=['GET', 'POST'])
-def cardapio_listar():
-    cardapio = listar_cardapio()
-    return render_template('cardapio.html', cardapio=cardapio)
-
 @app.route('/cardapio/admin', methods=['GET', 'POST'])
 def cardapio_admin():
     cardapio = listar_cardapio()
@@ -247,6 +242,30 @@ def index():
 @app.route('/adicionar/reserva')
 def index():
     return render_template('adicionar_reserva.html')
+
+@app.route('/pedido/admin')
+def index():
+    return render_template('pedido.html')
+
+@app.route('/adiciona/pedido')
+def index():
+    return render_template('adicionar_pedido.html')
+    
+@app.route('/editar/pedido')
+def index():
+    return render_template('editar_pedido.html')
+    
+@app.route('/solicitacoes/reserva')
+def index():
+    return render_template('solicitacoes.html')
+
+@app.route('/pedido/cliente')
+def index():
+    return render_template('pedido_cliente.html')
+
+@app.route('/cardapio/cliente')
+def index():
+    return render_template('cardapio_cliente.html')
 '''
 
 Em analise!!!!
