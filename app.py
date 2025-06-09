@@ -27,7 +27,7 @@ def listar_cardapio():
     conn.close()
     return data
 
-def criar_item(nome, preco, descricao, categoria, ingredientes):
+def adicionar_item(nome, preco, descricao, categoria, ingredientes):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -57,7 +57,7 @@ def listar_mesas():
     conn.close()
     return data
 
-def criar_mesa(numero):
+def adicionar_mesa(numero):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO mesa (numero) VALUES (%s)", (numero,))
@@ -71,7 +71,7 @@ def atualizar_status_mesa(id_mesa, status):
     conn.commit()
     conn.close()
 
-def remover_mesa(id_mesa):
+def excluir_mesa(id_mesa):
     conn = get_connection()
     cursor = conn.cursor()
     try:
@@ -96,7 +96,7 @@ def listar_pedidos():
     conn.close()
     return data
 
-def criar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
+def adicionar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
