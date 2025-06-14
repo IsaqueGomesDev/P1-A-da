@@ -1,80 +1,108 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify
-import json
-import os
+from flask import Flask, request, render_template, redirect, url_for
+import json, os
 
 app = Flask(__name__)
-DADOS_DIR = 'dados'
+DATA_DIR = "data"
 
-def ler_json(nome_arquivo):
-    caminho = os.path.join(DADOS_DIR, nome_arquivo)
-    if not os.path.exists(caminho):
-        with open(caminho, 'w') as f:
+def load_data(filename):
+    path = os.path.join(DATA_DIR, filename)
+    if not os.path.exists(path):
+        with open(path, "w") as f:
             json.dump([], f)
-    with open(caminho, 'r') as f:
+    with open(path, "r") as f:
         return json.load(f)
 
-def salvar_json(nome_arquivo, dados):
-    with open(os.path.join(DADOS_DIR, nome_arquivo), 'w') as f:
-        json.dump(dados, f, indent=4)
+def save_data(filename, data):
+    with open(os.path.join(DATA_DIR, filename), "w") as f:
+        json.dump(data, f, indent=4)
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    cardapio = load_data("cardapio.json")
+    mesas = load_data("mesa.json")
+    pedidos = load_data("pedido.json")
+    return render_template("index.html", cardapio=cardapio, mesas=mesas, pedidos=pedidos)
 
-@app.route('/cardapio')
-def cardapio():
-    pratos = ler_json('cardapio.json')
-    return render_template('cardapio.html', pratos=pratos)
+# CRUD Cardápio
+@app.route("/adicionar_cardapio", methods=["POST"])
+def adicionar_cardapio():
+    item = request.form.to_dict()
+    cardapio = load_data("cardapio.json")
+    item["id"] = len(cardapio) + 1
+    cardapio.append(item)
+    save_data("cardapio.json", cardapio)
+    return redirect(url_for("index"))
 
-@app.route('/cardapio/adicionar', methods=['POST'])
-def adicionar_prato():
-    pratos = ler_json('cardapio.json')
-    novo_prato = {
-        "id": len(pratos) + 1,
-        "nome": request.form['nome'],
-        "descricao": request.form['descricao'],
-        "preco": float(request.form['preco']),
-        "categoria": request.form['categoria']
-    }
-    pratos.append(novo_prato)
-    salvar_json('cardapio.json', pratos)
-    return redirect(url_for('cardapio'))
+@app.route("/editar_cardapio/<int:item_id>", methods=["POST"])
+def editar_cardapio(item_id):
+    cardapio = load_data("cardapio.json")
+    for item in cardapio:
+        if item["id"] == item_id:
+            item.update(request.form.to_dict())
+            break
+    save_data("cardapio.json", cardapio)
+    return redirect(url_for("index"))
 
-@app.route('/mesas')
-def mesas():
-    mesas = ler_json('mesa.json')
-    return render_template('mesas.html', mesas=mesas)
+@app.route("/excluir_cardapio/<int:item_id>")
+def excluir_cardapio(item_id):
+    cardapio = load_data("cardapio.json")
+    cardapio = [item for item in cardapio if item["id"] != item_id]
+    save_data("cardapio.json", cardapio)
+    return redirect(url_for("index"))
 
-@app.route('/mesas/adicionar', methods=['POST'])
+# CRUD Mesa
+@app.route("/adicionar_mesa", methods=["POST"])
 def adicionar_mesa():
-    mesas = ler_json('mesa.json')
-    nova_mesa = {
-        "id": len(mesas) + 1,
-        "numero": request.form['numero'],
-        "status": "disponível"
-    }
-    mesas.append(nova_mesa)
-    salvar_json('mesa.json', mesas)
-    return redirect(url_for('mesas'))
+    mesas = load_data("mesa.json")
+    nova = request.form.to_dict()
+    nova["id"] = len(mesas) + 1
+    mesas.append(nova)
+    save_data("mesa.json", mesas)
+    return redirect(url_for("index"))
 
-@app.route('/pedidos')
-def pedidos():
-    pedidos = ler_json('pedido.json')
-    return render_template('pedidos.html', pedidos=pedidos)
+@app.route("/editar_mesa/<int:mesa_id>", methods=["POST"])
+def editar_mesa(mesa_id):
+    mesas = load_data("mesa.json")
+    for m in mesas:
+        if m["id"] == mesa_id:
+            m.update(request.form.to_dict())
+            break
+    save_data("mesa.json", mesas)
+    return redirect(url_for("index"))
 
-@app.route('/pedidos/adicionar', methods=['POST'])
+@app.route("/excluir_mesa/<int:mesa_id>")
+def excluir_mesa(mesa_id):
+    mesas = load_data("mesa.json")
+    mesas = [m for m in mesas if m["id"] != mesa_id]
+    save_data("mesa.json", mesas)
+    return redirect(url_for("index"))
+
+# CRUD Pedido
+@app.route("/adicionar_pedido", methods=["POST"])
 def adicionar_pedido():
-    pedidos = ler_json('pedido.json')
-    novo_pedido = {
-        "id": len(pedidos) + 1,
-        "mesa_id": int(request.form['mesa_id']),
-        "prato": request.form['prato'],
-        "status": "em preparo",
-        "observacoes": request.form['observacoes']
-    }
-    pedidos.append(novo_pedido)
-    salvar_json('pedido.json', pedidos)
-    return redirect(url_for('pedidos'))
+    pedidos = load_data("pedido.json")
+    novo = request.form.to_dict()
+    novo["id"] = len(pedidos) + 1
+    pedidos.append(novo)
+    save_data("pedido.json", pedidos)
+    return redirect(url_for("index"))
 
-if __name__ == '__main__':
+@app.route("/editar_pedido/<int:pedido_id>", methods=["POST"])
+def editar_pedido(pedido_id):
+    pedidos = load_data("pedido.json")
+    for p in pedidos:
+        if p["id"] == pedido_id:
+            p.update(request.form.to_dict())
+            break
+    save_data("pedido.json", pedidos)
+    return redirect(url_for("index"))
+
+@app.route("/excluir_pedido/<int:pedido_id>")
+def excluir_pedido(pedido_id):
+    pedidos = load_data("pedido.json")
+    pedidos = [p for p in pedidos if p["id"] != pedido_id]
+    save_data("pedido.json", pedidos)
+    return redirect(url_for("index"))
+
+if __name__ == "__main__":
     app.run(debug=True)
