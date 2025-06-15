@@ -21,13 +21,20 @@ def index():
     cardapio = load_data("cardapio.json")
     mesas = load_data("mesa.json")
     pedidos = load_data("pedido.json")
-    return render_template("index.html", cardapio=cardapio, mesas=mesas, pedidos=pedidos)
+    reservas = load_data("reserva.json")
 
-# CRUD Cardápio
+    # Marca as mesas como ocupadas se tiverem uma reserva
+    mesas_ocupadas = {int(r["mesa_id"]) for r in reservas}
+    for mesa in mesas:
+        mesa["ocupada"] = int(mesa["id"]) in mesas_ocupadas
+
+    return render_template("index.html", cardapio=cardapio, mesas=mesas, pedidos=pedidos, reservas=reservas)
+
+# ---------- CRUD CARDÁPIO ----------
 @app.route("/adicionar_cardapio", methods=["POST"])
 def adicionar_cardapio():
-    item = request.form.to_dict()
     cardapio = load_data("cardapio.json")
+    item = request.form.to_dict()
     item["id"] = len(cardapio) + 1
     cardapio.append(item)
     save_data("cardapio.json", cardapio)
@@ -50,7 +57,7 @@ def excluir_cardapio(item_id):
     save_data("cardapio.json", cardapio)
     return redirect(url_for("index"))
 
-# CRUD Mesa
+# ---------- CRUD MESAS ----------
 @app.route("/adicionar_mesa", methods=["POST"])
 def adicionar_mesa():
     mesas = load_data("mesa.json")
@@ -77,7 +84,7 @@ def excluir_mesa(mesa_id):
     save_data("mesa.json", mesas)
     return redirect(url_for("index"))
 
-# CRUD Pedido
+# ---------- CRUD PEDIDOS ----------
 @app.route("/adicionar_pedido", methods=["POST"])
 def adicionar_pedido():
     pedidos = load_data("pedido.json")
@@ -102,6 +109,23 @@ def excluir_pedido(pedido_id):
     pedidos = load_data("pedido.json")
     pedidos = [p for p in pedidos if p["id"] != pedido_id]
     save_data("pedido.json", pedidos)
+    return redirect(url_for("index"))
+
+# ---------- CRUD RESERVAS ----------
+@app.route("/adicionar_reserva", methods=["POST"])
+def adicionar_reserva():
+    reservas = load_data("reserva.json")
+    nova = request.form.to_dict()
+    nova["id"] = len(reservas) + 1
+    reservas.append(nova)
+    save_data("reserva.json", reservas)
+    return redirect(url_for("index"))
+
+@app.route("/excluir_reserva/<int:reserva_id>")
+def excluir_reserva(reserva_id):
+    reservas = load_data("reserva.json")
+    reservas = [r for r in reservas if r["id"] != reserva_id]
+    save_data("reserva.json", reservas)
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
