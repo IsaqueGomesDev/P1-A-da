@@ -1,0 +1,18 @@
+[
+    {
+        "id_pedido": 1,
+        "id_mesa": "1",
+        "id_cardapio": "1",
+        "quantidade": 1,
+        "status": "em_preparo",
+        "observacoes": ""
+    },
+    {
+        "id_pedido": 2,
+        "id_mesa": "1",
+        "id_cardapio": "1",
+        "quantidade": 117,
+        "status": "pendente",
+        "observacoes": ""
+    }
+]

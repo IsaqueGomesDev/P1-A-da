@@ -1,0 +1,19 @@
+[
+    {
+        "id_reserva": "1",
+        "data_confirmacao": "2025-06-15"
+    },
+    {
+        "id_reserva": "2",
+        "data_confirmacao": "2025-06-17"
+    },
+    {
+        "id_reserva": "7",
+        "data_confirmacao": "2025-06-18"
+    },
+    {
+        "id_reserva": "1",
+        "data_confirmacao": "2025-06-10",
+        "id_cliente": 1
+    }
+]
