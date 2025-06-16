@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "nome": "Administrador",
+        "email": "admin@restaurante.com",
+        "senha": "scrypt:32768:8:1$RpjLdewsyYFPGqZQ$88c824cb23e2235c9f0280be52fe1d49a1d4ffe02b4684b76c6aa168c5292a81bcda515b3541e9481e36a6b81c7e2b8545b36b32272ee47e1864aefbea1234ac",
+        "tipo_usuario": "admin"
+    }
+]
