@@ -1,278 +1,164 @@
-from flask import Flask, request, redirect, render_template, url_for, session
-import mysql.connector
+from flask import Flask, request, render_template, redirect, url_for
+import json, os
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta_aqui'  # Necessário para usar sessões
+DATA_DIR = "data"
 
-# Conexão com banco
-def get_connection():
-    try:
-        return mysql.connector.connect(
-            host="127.0.0.1",  
-            user="root",
-            password="#Thay10121926",
-            database="restaurante",
-            port=3306  
-        )
-    except mysql.connector.Error as err:
-        print(f"Erro de conexão: {err}")
-        raise
+def load_data(filename):
+    path = os.path.join(DATA_DIR, filename)
+    if not os.path.exists(path):
+        with open(path, "w") as f:
+            json.dump([], f)
+    with open(path, "r") as f:
+        return json.load(f)
 
-# Funções
-def listar_cardapio():
-    with get_connection() as conn:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute("SELECT * FROM cardapio")
-            data = cursor.fetchall()
-    return data
+def save_data(filename, data):
+    with open(os.path.join(DATA_DIR, filename), "w") as f:
+        json.dump(data, f, indent=4)
 
-def adicionar_item(nome, preco, descricao, categoria, ingredientes):
-    with get_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO cardapio (nome, preco, descricao, categoria, ingredientes)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (nome, preco, descricao, categoria, ingredientes))
-            conn.commit()
-
-def excluir_item_cardapio(id_item):
-    with get_connection() as conn:
-        with conn.cursor() as cursor:
-            try:
-                cursor.execute("DELETE FROM cardapio WHERE id = %s", (id_item,))
-                conn.commit()
-            except mysql.connector.errors.IntegrityError:
-                return False
-    return True
-
-def listar_mesas():
-    with get_connection() as conn:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute("SELECT * FROM mesa")
-            data = cursor.fetchall()
-    return data
-
-def adicionar_mesa(numero):
-    with get_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("INSERT INTO mesa (numero) VALUES (%s)", (numero,))
-            conn.commit()
-
-def atualizar_status_mesa(id_mesa, status):
-    with get_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("UPDATE mesa SET ocupada = %s WHERE id = %s", (status, id_mesa))
-            conn.commit()
-
-def excluir_mesa(id_mesa):
-    with get_connection() as conn:
-        with conn.cursor() as cursor:
-            try:
-                cursor.execute("DELETE FROM mesa WHERE id = %s", (id_mesa,))
-                conn.commit()
-            except mysql.connector.errors.IntegrityError:
-                return False
-    return True
-
-def listar_pedidos():
-    with get_connection() as conn:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute("""
-                SELECT p.id, m.numero AS mesa, c.nome AS item, p.quantidade, p.status, p.observacoes
-                FROM pedido p
-                JOIN mesa m ON p.id_mesa = m.id
-                JOIN cardapio c ON p.id_cardapio = c.id
-            """)
-            data = cursor.fetchall()
-    return data
-
-def adicionar_pedido(id_mesa, id_cardapio, quantidade, observacoes):
-    with get_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO pedido (id_mesa, id_cardapio, quantidade, observacoes)
-                VALUES (%s, %s, %s, %s)
-            """, (id_mesa, id_cardapio, quantidade, observacoes))
-            conn.commit()
-
-# Rotas
-@app.route('/')
-def index():
+@app.route("/")
+def tela_inicial():
     return render_template('tela_inicial.html')
-
-@app.route('/cadastro', methods=['GET', 'POST'])
-def cadastro():
-    if request.method == 'POST':
-        email = request.form.get('nome')
-        senha = request.form.get('senha')
-        usuario = request.form.get('usuario')
-        cpf = request.form.get('cpf')
-
-        with get_connection() as conn:
-            with conn.cursor(dictionary=True) as cursor:
-                cursor.execute("INSERT INTO usuario(email, senha, usuario, cpf) VALUES (%s, %s, %s, %s)", 
-                               (email, senha, usuario, cpf))
-                conn.commit()
-                return redirect(url_for('login_cliente'))
-
-    return render_template('cadastro_cliente.html')
-
-@app.route('/login/cliente', methods=['GET', 'POST'])
-def login_cliente():
-    if request.method == 'POST':
-        email = request.form.get('nome')
-        senha = request.form.get('senha')
-
-        if email == "admin" and senha == "adm123":
-            return redirect(url_for('inicio_admin'))
-
-        with get_connection() as conn:
-            with conn.cursor(dictionary=True) as cursor:
-                cursor.execute("SELECT id, email, senha FROM usuario WHERE email = %s", (email,))
-                usuario = cursor.fetchone()
-
-        if usuario and usuario['senha'] == senha:
-            session['usuario_id'] = usuario['id']
-            return redirect(url_for('inicio_cliente'))
-
-    return render_template('login_cliente.html')
 
 @app.route('/inicio/admin')
 def inicio_admin():
-    try:
-        with get_connection() as conn:
-            with conn.cursor(dictionary=True) as cursor:
-                cursor.execute("SELECT * FROM mesa")
-                mesas = cursor.fetchall()
+    return render_template('admin.html')
 
-                cursor.execute("SELECT * FROM mesa WHERE ocupada = 0")
-                disponiveis = cursor.fetchall()
-
-                return render_template('admin.html', mesas=mesas, disponiveis=disponiveis)
-    except Exception as e:
-        return f"Erro ao carregar admin: {e}", 500
-
-@app.route('/inicio/cliente')
-def inicio_cliente():
-    usuario_id = session.get('usuario_id')
-
-    if not usuario_id:
-        return redirect(url_for('login_cliente'))
-
-    with get_connection() as conn:
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute("SELECT * FROM mesa")
-            mesas = cursor.fetchall()
-
-            cursor.execute("SELECT * FROM mesa WHERE ocupada = 0")
-            disponiveis = cursor.fetchall()
-
-    return render_template('cliente.html', mesas=mesas, disponiveis=disponiveis)
-
-@app.route('/login/funcionario', methods=['GET', 'POST'])
-def login_funcionario():
-    if request.method == 'POST':
-        email = request.form.get('nome')
-        senha = request.form.get('senha')
-
-        if email == "admin" and senha == "adm123":
-            return redirect(url_for('inicio_admin'))
-        else:
-            return render_template('login.html')
-
-    return render_template('login.html')
-
-@app.route('/cardapio', methods=['GET', 'POST'])
-def cardapio_listar():
-    cardapio = listar_cardapio()
+# ---------- CRUD CARDÁPIO ----------
+@app.route('/cardapio', methods=['GET'])
+def listar_cardapio():
+    cardapio = load_data('cardapio.json')
     return render_template('cardapio.html', cardapio=cardapio)
 
-@app.route('/cardapio/admin', methods=['GET', 'POST'])
-def cardapio_admin():
-    cardapio = listar_cardapio()
-    return render_template('cardapio.html', cardapio=cardapio)
+@app.route("/adicionar/cardapio")
+def adicionar_cardapio_template():
+    return render_template("adicionar_cardapio.html")
 
-@app.route('/adicionar/cardapio', methods=['GET', 'POST'])
+@app.route("/adicionar_cardapio", methods=["POST"])
 def adicionar_cardapio():
-    if request.method == 'POST':
-        adicionar_item(
-            request.form['nome'],
-            float(request.form['preco']),
-            request.form['descricao'],
-            request.form['categoria'],
-            request.form['ingredientes']
-        )
+    cardapio = load_data("cardapio.json")
+    item = request.form.to_dict()
+    item["id"] = len(cardapio) + 1
+    cardapio.append(item)
+    save_data("cardapio.json", cardapio)
+    return redirect(url_for("listar_cardapio"))
 
-    return render_template('adicionar_cardapio.html', cardapio=listar_cardapio())
+@app.route("/editar/cardapio/<int:item_id>", methods=["GET", "POST"])
+def editar_cardapio(item_id):
+    cardapio = load_data("cardapio.json")
 
-@app.route('/excluir_item/<int:id>', methods=['POST'])
-def excluir_item(id):
-    if excluir_item_cardapio(id):
-        return redirect(url_for('cardapio_listar'))
+    if request.method == "POST":
+        for item in cardapio:
+            if item["id"] == item_id:
+                item.update(request.form.to_dict())
+                break
+        save_data("cardapio.json", cardapio)
+        return redirect(url_for("listar_cardapio"))
     else:
-        return "Erro ao excluir item", 400
+        item = next((i for i in cardapio if i["id"] == item_id), None)
+        return render_template("editar_cardapio.html", item=item)
 
-@app.route('/pedidos', methods=['GET', 'POST'])
-def pedidos():
-    pedidos = listar_pedidos()
-    mesas = listar_mesas()
-    cardapio = listar_cardapio()
+@app.route("/excluir/cardapio/<int:item_id>")
+def excluir_cardapio(item_id):
+    cardapio = load_data("cardapio.json")
+    cardapio = [item for item in cardapio if item["id"] != item_id]
+    save_data("cardapio.json", cardapio)
+    return redirect(url_for("listar_cardapio"))
 
-    return render_template('pedidos.html', pedidos=pedidos, mesas=mesas, cardapio=cardapio)
 
-@app.route('/editar/reserva', methods=['GET', 'POST'])
-def editar_reserva():
-    if request.method == 'POST':
-        nome = request.form['nome']
-        cpf = request.form.get('cpf')
-        usuario_id = session.get('usuario_id')
+# ---------- CRUD MESAS ----------
+@app.route('/mesas', methods=['GET'])
+def listar_mesa():
+    mesas = load_data('mesa.json')
+    return render_template('mesas.html', mesas=mesas)
 
-        if not usuario_id:
-            return redirect(url_for('login_cliente'))
+@app.route("/adicionar/mesa")
+def adicionar_mesa_template():
+    return render_template("adicionar_mesa.html")
 
-        with get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute('UPDATE reserva SET nome = %s, cpf = %s WHERE id = %s', (nome, cpf, usuario_id))
-                conn.commit()
+@app.route("/adicionar_mesa", methods=["POST"])
+def adicionar_mesa():
+    mesas = load_data("mesa.json")
+    nova = request.form.to_dict()
+    nova["id"] = len(mesas) + 1
+    mesas.append(nova)
+    save_data("mesa.json", mesas)
+    return redirect(url_for("listar_mesa"))
 
-        return redirect(url_for('index'))  # Redirecionamento ajustável
+@app.route("/excluir/mesa/<int:mesa_id>")
+def excluir_mesa(mesa_id):
+    mesas = load_data("mesa.json")
+    mesas = [m for m in mesas if m["id"] != mesa_id]
+    save_data("mesa.json", mesas)
+    return redirect(url_for("listar_mesa"))
 
-    return render_template('editar_reserva.html')
+# ---------- CRUD PEDIDOS ----------
+@app.route('/pedidos', methods=['GET'])
+def listar_pedidos():
+    pedidos = load_data('pedido.json')
+    return render_template('pedido.html', pedidos=pedidos)
 
-@app.route('/sobre/prato')
-def sobre_o_prato():
-    return render_template('sobre_o_prato.html')
+@app.route("/adicionar/pedido")
+def adicionar_pedido_template():
+    return render_template("adicionar_pedido.html")
 
-@app.route('/editar/cardapio')
-def editar_cardapio():
-    return render_template('editar_cardapio.html')
-
-@app.route('/reserva/admin')
-def reserva_admin():
-    return render_template('reserva.html')
-
-@app.route('/adicionar/reserva')
-def adicionar_reserva():
-    return render_template('adicionar_reserva.html')
-
-@app.route('/pedido/admin')
-def pedido_admin():
-    return render_template('pedido.html')
-
-@app.route('/adiciona/pedido')
+@app.route("/adicionar_pedido", methods=["POST"])
 def adicionar_pedido():
-    if request.method == 'POST':
-        adicionar_pedido(
-            request.form['id_mesa'],
-            request.form['id_cardapio'],
-            request.form['quantidade'],
-            request.form['observacoes']
-        )
-    return render_template('adicionar_pedido.html')
+    pedidos = load_data("pedido.json")
+    novo = request.form.to_dict()
+    novo["id"] = len(pedidos) + 1
+    pedidos.append(novo)
+    save_data("pedido.json", pedidos)
+    return redirect(url_for("listar_pedidos"))
 
-@app.route('/editar/pedido')
-def editar_pedido():
-    return render_template('editar_pedido.html')
+@app.route("/editar/pedido/<int:pedido_id>", methods=["GET", "POST"])
+def editar_pedido(pedido_id):
+    pedidos = load_data("pedido.json")
+
+    if request.method == "POST":
+        for p in pedidos:
+            if p["id"] == pedido_id:
+                p.update(request.form.to_dict())
+                break
+        save_data("pedido.json", pedidos)
+        return redirect(url_for("listar_pedidos"))
+    else:
+        novo = next((i for i in pedidos if i["id"] == pedido_id), None)
+        return render_template("editar_pedido.html", novo=novo)
+
+
+@app.route("/excluir/pedido/<int:pedido_id>")
+def excluir_pedido(pedido_id):
+    pedidos = load_data("pedido.json")
+    pedidos = [p for p in pedidos if p["id"] != pedido_id]
+    save_data("pedido.json", pedidos)
+    return redirect(url_for("listar_pedidos"))
+
+# ---------- CRUD RESERVAS ----------
+@app.route('/reserva/admin', methods=['GET'])
+def listar_reserva():
+    reserva = load_data('reserva.json')
+    return render_template('reserva.html', reserva=reserva)
+
+@app.route("/adicionar/reserva")
+def adicionar_reserva_template():
+    return render_template("adicionar_reserva.html")
+
+@app.route("/adicionar_reserva", methods=["POST"])
+def adicionar_reserva():
+    reservas = load_data("reserva.json")
+    nova = request.form.to_dict()
+    nova["id"] = len(reservas) + 1
+    reservas.append(nova)
+    save_data("reserva.json", reservas)
+    return redirect(url_for("listar_reserva"))
+
+@app.route("/excluir_reserva/<int:reserva_id>")
+def excluir_reserva(reserva_id):
+    reservas = load_data("reserva.json")
+    reservas = [r for r in reservas if r["id"] != reserva_id]
+    save_data("reserva.json", reservas)
+    return redirect(url_for("listar_reserva"))
 
 @app.route('/solicitacoes/reserva')
 def solicitacoes():
@@ -282,11 +168,14 @@ def solicitacoes():
 def pedido_cliente():
     return render_template('pedido_cliente.html')
 
-@app.route('/cardapio/cliente')
+@app.route('/cardapio/cliente', methods=['GET'])
 def cardapio_cliente():
-    return render_template('cardapio_cliente.html')
+   cardapio = load_data('cardapio.json')
+   return render_template('cardapio_cliente.html', cardapio=cardapio)
 
+@app.route('/inicio/cliente')
+def inicio_cliente():
+    return render_template('inicio_cliente.html')
 
-# Executar servidor
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    app.run(debug=True)
