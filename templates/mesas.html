@@ -56,7 +56,7 @@
      <div class="conteiner">
      <div class="titulo" style="margin-top: 20px; margin-bottom: 15px;">
       <h1>Mesas</h1>
-      <a href="/adicionar/mesa" style="margin-left: 45%;  position: fixed;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
+      <a href="/adicionar/mesa" style="margin-left: 45%;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
      </div>
     <div class="tabela">
       <div class="tabela border">
@@ -66,17 +66,21 @@
         <th>ID</th>
         <th>Número da mesa</th>
         <th>Status</th>
+        <th>Editar</th>
         <th>Excluir</th>
       </tr>
     </thead>
     <tbody>
-      {% for nova in mesas %}
+      {% for mesa in mesas %}
       <tr>
-        <td>{{ nova.id }}</td>
-        <td>{{ nova.numero }}</td>
-        <td>{{ nova.status }}</td>
+        <td>{{ mesa.id }}</td>
+        <td>{{ mesa.numero }}</td>
+        <td>{{ mesa.status }}</td>
         <td>
-          <form action="/excluir/mesa/{{ nova.id }}" method="get" style="display: inline;">
+            <a href="/editar/mesa/{{ mesa.id }}" class="btn btn-success">Editar</a>
+          </td>
+        <td>
+          <form action="/excluir/mesa/{{ mesa.id }}" method="get" style="display: inline;">
             <button type="submit" class="btn btn-danger">
               <span><i class="fas fa-trash"></i></span>
               <span id="excluir">Excluir</span>
