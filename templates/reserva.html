@@ -1,99 +1,87 @@
-
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-  <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
-    <title>Sistema de restaurante</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous" />
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet' />
+    <title>Sistema de restaurante - Reservas</title>
 </head>
 <body style="background-color: #f5f5f5;">
-     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px; height:100vh; position:fixed">
-      <a href="/inicio/admin" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-        <img class="bi pe-none me-2" width="100" height="100" src="{{ url_for('static', filename='img/logo_restaurante.png') }}" alt="logo">
-        <span class="fs-4">Sistema de restaurante</span>
-      </a>
-      <hr>
-      <ul class="nav nav-pills flex-column mb-auto">
-        <li>
-          <a href="/mesas" class="nav-link text-white hover-link">
-            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
-          Mesas
-          </a>
-        </li>
-        <li>
-          <a href="/reserva/admin" class="nav-link text-white hover-link">
-            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
-          Controle de reserva
-          </a>
-        </li>
-        <li>
-          <a href="/cardapio" class="nav-link text-white hover-link" class="texto">
-            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
-          Cardápio
-          </a>
-        </li>
-        <li>
-          <a href="/pedidos" class="nav-link text-white hover-link">
-            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
-          Pedido
-          </a>
-        </li>
-      </ul>
-      <hr>
-      <div class="dropdown">
-        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="{{ url_for('static', filename='img/user_icon.png') }}" alt="User" width="32" height="32" class="rounded-circle me-2">
-          <strong>Administrador</strong>
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px; height:100vh; position:fixed;">
+        <a href="{{ url_for('admin') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <img class="bi pe-none me-2" width="100" height="100" src="{{ url_for('static', filename='img/logo_restaurante.png') }}" alt="logo" />
+            <span class="fs-4">Sistema de restaurante</span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="/">Deslogar</a></li>
+        <hr />
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li><a href="{{ url_for('listar_mesa') }}" class="nav-link text-white hover-link">Mesas</a></li>
+            <li><a href="{{ url_for('listar_reserva') }}" class="nav-link text-white hover-link active">Controle de reserva</a></li>
+            <li><a href="{{ url_for('listar_cardapio') }}" class="nav-link text-white hover-link">Cardápio</a></li>
+            <li><a href="{{ url_for('listar_pedidos') }}" class="nav-link text-white hover-link">Pedido</a></li>
         </ul>
-      </div>
+        <hr />
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="{{ url_for('static', filename='img/user_icon.png') }}" alt="User" width="32" height="32" class="rounded-circle me-2" />
+                <strong>Administrador</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                <li><a class="dropdown-item" href="{{ url_for('logout') }}">Deslogar</a></li>
+            </ul>
+        </div>
     </div>
-    <!---->
-     <div class="conteiner">
-      <div class="solicitacoes" style="margin-top: 20px;">
-        <a href="/solicitacoes/reserva" style="text-decoration: none; color: #20272e;"><h3 style="font-size: 15px; margin-left: 60%; position: fixed;">Solicitações <i class='bx  bx-arrow-out-up-right-square'  ></i> </h3></a>
-      </div>
-     <div class="titulo" style="margin-top: 20px; margin-bottom: 15px;">
-      <h1>Reserva de mesas</h1>
-      <a href="adicionar_reserva.html" style="margin-left: 45%;  position: fixed;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
-     </div>
-     <div class="tabela">
-      <div class="tabela border">
-      <table class="table table-striped mb-0" style="width: 750px;">
-        <tr class="px-3">
-          <th>Id mesa</th>
-          <th>Nome</th>
-          <th>CPF</th>
-          <th>Editar</th>
-          <th>Excluir</th>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td>
-            <form action="editar_reserva.html" method="post" style="display: inline;">
-              <button type="submit" class="btn btn-success">
-                <i class="fas fa-edit"></i> Editar
-              </button>
-            </form>
-          </td>
-          <td><form action="#" method="post" style="display: inline;">
-              <button type="submit" class="btn btn-danger">
-                  <span><i class="fas fa-trash"></i></span>
-                  <span id="excluir"> Excluir</span>
-              </button>
-          </form></td>
-        </tr>
-      </div>
-      </table>
+
+    <div class="container" style="margin-left: 300px; margin-top: 20px; max-width: 900px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Reserva de mesas</h1>
+            <a href="{{ url_for('adicionar_reserva_template') }}" class="btn btn-secondary">Adicionar</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered" style="max-width: 750px;">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id mesa</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Editar</th>
+                        <th>Excluir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td>{{ reserva.id }}</td>
+                        <td>{{ reserva.nome }}</td>
+                        <td>{{ reserva.cpf }}</td>
+                        <td>
+                            <a href="{{ url_for('editar_reserva', id=reserva.id) }}" class="btn btn-success btn-sm" title="Editar reserva">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('excluir_reserva', id=reserva.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir esta reserva?');" title="Excluir reserva">
+                                <i class="fas fa-trash"></i> Excluir
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Nenhuma reserva encontrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+
+    <!-- FontAwesome CDN -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+        crossorigin="anonymous"></script>
 </body>
 </html>
