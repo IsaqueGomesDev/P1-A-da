@@ -3,34 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link href="{{url_for('static', filename='css/index.css')}}">
-     <link rel="icon" href="{{url_for('static', filename='img/logo_restaurante.png')}}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <title>Sistema de restaurante</title>
 </head>
 <body style="background-color: #f5f5f5;">
     <div class="conteudo">
      <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px; height:100vh; position:fixed">
-      <a href="admin.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-        <img class="bi pe-none me-2" width="100" height="100" src="img/logo_restaurante.png" alt="logo">
+      <a href="/inicio/admin" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <img class="bi pe-none me-2" width="100" height="100" src="{{ url_for('static', filename='img/logo_restaurante.png') }}" alt="logo">
         <span class="fs-4">Sistema de restaurante</span>
       </a>
       <hr>
       <ul class="nav nav-pills flex-column mb-auto">
         <li>
-          <a href="#" class="nav-link text-white hover-link">
+          <a href="/mesas" class="nav-link text-white hover-link">
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
-          Controle de mesa
+          Mesas
           </a>
         </li>
         <li>
-          <a href="cardapio.html" class="nav-link text-white hover-link" class="texto">
+          <a href="/reserva/admin" class="nav-link text-white hover-link">
+            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
+          Controle de reserva
+          </a>
+        </li>
+        <li>
+          <a href="/cardapio" class="nav-link text-white hover-link" class="texto">
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
           Cardápio
           </a>
         </li>
         <li>
-          <a href="pedido.html" class="nav-link text-white hover-link">
+          <a href="/pedidos" class="nav-link text-white hover-link">
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
           Pedido
           </a>
@@ -39,11 +44,11 @@
       <hr>
       <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="img/user_icon.png" alt="User" width="32" height="32" class="rounded-circle me-2">
+          <img src="{{ url_for('static', filename='img/user_icon.png') }}" alt="User" width="32" height="32" class="rounded-circle me-2">
           <strong>Administrador</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="login.html">Deslogar</a></li>
+          <li><a class="dropdown-item" href="/">Deslogar</a></li>
         </ul>
       </div>
     </div>
@@ -51,33 +56,31 @@
      <div class="adicionar">
       <h1>Adicionar ao cardápio</h1>
 
-    <div class="cadastro">
+    <div class="cadastro" style="width: 350px">
       <main class="form-signin w-100 m-auto">
-        <form method='POST' enctype="multipart/form-data">
+        <form action="/adicionar_cardapio" method="post">
             <div class="form-floating">
-            <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="nome_categoria">
+            <input type="text" type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="prato">
             <label for="floatingInput">Prato</label>
           </div>
           <br>
           <div class="form-floating">
-            <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="nome_categoria">
+            <input type="text" type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="categoria">
             <label for="floatingInput">Categoria</label>
           </div>
           <br>
           <div class="form-floating">
-            <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="descricao">
+            <input type="text" type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="descricao">
             <label for="floatingInput">Descrição</label>
           </div>
           <br>
           <div class="form-floating">
-  <input type="text" class="form-control" id="preco" placeholder="0,00" name="preco">
+        <input type="text" type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="preco">
   <label for="preco">Preço</label>
          </div>
           <br>
-          <input class="form-control form-control-sm" id="imagem" type="file" name="imagem">
-          <br>
           <div class="botao"> 
-            <button class="btn btn-secondary w-100 py-2" type="submit">Adicionar</button>
+        <button class="btn btn-secondary w-100 py-2" type="submit">Adicionar</button>
            </div>
         </form>
       </main>
