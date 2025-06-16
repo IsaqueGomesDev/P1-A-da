@@ -56,7 +56,7 @@
      <div class="conteiner">
      <div class="titulo" style="margin-top: 20px; margin-bottom: 15px;">
       <h1>Pedidos</h1>
-      <a href="adicionar/pedido" style="margin-left: 45%;  position: fixed;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
+      <a href="adicionar/pedido" style="margin-left: 45%;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
      </div>
      <div class="tabela">
       <div class="tabela border">
@@ -73,7 +73,7 @@
         <tr>
          <td>{{ novo.id}}</td>
          <td>{{ novo.num_mesa}}</td>
-         <td>{{ novo.prato}}</td>
+         <td>{{ novo.prato }}</td>
          <td>{{ novo.status_pedido}}</td>
           <td>
             <a href="/editar/pedido/{{ novo.id }}" class="btn btn-success">Editar</a>
