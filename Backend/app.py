@@ -125,6 +125,22 @@ def adicionar_pedido():
     save_data("pedido.json", pedidos)
     return redirect(url_for("listar_pedidos"))
 
+#ROTA DE ADICIONAR PEDIDO VINDO DO CLIENTE
+@app.route("/adicionar_pedido_cliente", methods=["POST"])
+def adicionar_pedido_cliente():
+    pedidos = load_data("pedido.json")
+    novo_pedido = {
+        "id": len(pedidos) + 1,
+        "num_mesa": request.form["num_mesa"],
+        "prato": request.form["prato"],
+        "status_pedido": "Em preparo"
+    }
+    pedidos.append(novo_pedido)
+    save_data("pedido.json", pedidos)
+
+    return redirect(url_for("cardapio_cliente", mensagem="Pedido realizadoo!"))
+
+
 @app.route("/editar/pedido/<int:pedido_id>", methods=["GET", "POST"])
 def editar_pedido(pedido_id):
     pedidos = load_data("pedido.json")
@@ -188,17 +204,7 @@ def excluir_reserva(reserva_id):
     save_data("reserva.json", reservas)
     return redirect(url_for("listar_reserva"))
 
-
-
-
-@app.route('/solicitacoes/reserva')
-def solicitacoes():
-    return render_template('solicitacoes.html')
-
-@app.route('/pedido/cliente')
-def pedido_cliente():
-    return render_template('pedido_cliente.html')
-
+#---------- ROTAS SIMPLES ----------
 @app.route('/cardapio/cliente', methods=['GET'])
 def cardapio_cliente():
    cardapio = load_data('cardapio.json')
