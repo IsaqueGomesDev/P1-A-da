@@ -1,28 +1,183 @@
-from flask import Flask, request, render_template, redirect, url_for
-import json, os
+from flask import Flask, request, render_template, redirect, url_for, jsonify, session, flash
+import json
+import os
+from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 DATA_DIR = "data"
+app.secret_key = os.environ.get('SECRET_KEY', '123456')
 
 def load_data(filename):
-    path = os.path.join(DATA_DIR, filename)
-    if not os.path.exists(path):
-        with open(path, "w") as f:
-            json.dump([], f)
-    with open(path, "r") as f:
-        return json.load(f)
+    try:
+        caminho = os.path.join(DATA_DIR, filename)
+        if not os.path.exists(caminho):
+            with open(caminho, 'w') as f:
+                json.dump([], f)  # Corrigido para lista
+            return []
+        
+        with open(caminho, 'r') as f:
+            data = json.load(f)
+            if not isinstance(data, list):
+                raise ValueError(f"Arquivo {filename} não contém uma lista válida")
+            return data
+    except json.JSONDecodeError:
+        raise ValueError(f"Arquivo {filename} contém JSON inválido")
+    except Exception as e:
+        raise Exception(f"Erro ao ler arquivo {filename}: {str(e)}")
+    
 
 def save_data(filename, data):
-    with open(os.path.join(DATA_DIR, filename), "w") as f:
-        json.dump(data, f, indent=4)
+    try:
+        with open(os.path.join(DATA_DIR, filename), 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        raise Exception(f'Erro ao salvar dados: {str(e)}')
+
+def buscar_item_por_id(items, id):
+    return next((item for item in items if item['id'] == id), None)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'usuario_id' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'usuario_id' not in session or session.get('tipo_usuario') != 'admin':
+            flash('Acesso negado')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def gerar_id(items):
+    if not items:
+        return 1
+    return max(item.get('id', 0) for item in items) + 1
+
+
+
+
+
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
 @app.route("/")
 def tela_inicial():
     return render_template('tela_inicial.html')
 
-@app.route('/inicio/admin')
-def inicio_admin():
-    return render_template('admin.html')
+@app.route('/admin', methods=['GET'])
+@login_required
+@admin_required
+def admin():
+    try:
+        return render_template('admin.html')
+    except Exception as e:
+        flash(f'Erro ao carregar página: {str(e)}')
+        return redirect(url_for('login'))
+
+@app.route('/login/cliente', methods=['GET', 'POST'])
+def login_cliente():
+    if request.method == 'POST':
+        try:
+            # Verifica se os campos foram preenchidos
+            if not request.form.get('email') or not request.form.get('senha'):
+                flash('Por favor, preencha todos os campos', 'error')
+                return redirect(url_for('login_cliente'))
+
+            # Carrega os clientes
+            clientes = load_data('cliente.json')
+            
+            # Procura o cliente pelo email
+            cliente = next((c for c in clientes if c['email'].lower() == request.form['email'].lower()), None)
+            
+            if not cliente:
+                flash('Email não encontrado', 'error')
+                return redirect(url_for('login_cliente'))
+            
+            # Verifica a senha
+            if check_password_hash(cliente['senha'], request.form['senha']):
+                # Login bem-sucedido
+                session['usuario_id'] = cliente['id']
+                session['tipo_usuario'] = 'cliente'
+                session['nome_usuario'] = cliente['nome']
+                flash(f'Bem-vindo(a), {cliente["nome"]}!', 'success')
+                return redirect(url_for('inicio_cliente'))
+            else:
+                flash('Senha incorreta', 'error')
+                return redirect(url_for('login_cliente'))
+                
+        except Exception as e:
+            flash(f'Erro ao fazer login: {str(e)}', 'error')
+            return redirect(url_for('login_cliente'))
+            
+    return render_template('login_cliente.html')
+
+@app.route('/login/admin', methods=['GET', 'POST'])
+def login_admin():
+    if request.method == 'POST':
+        try:
+            admins = load_data('admin.json')
+            admin = next((a for a in admins if a['email'] == request.form['email']), None)
+            if admin and check_password_hash(admin['senha'], request.form['senha']):
+                session['usuario_id'] = admin['id']
+                session['tipo_usuario'] = 'admin'
+                return redirect(url_for('admin'))
+            flash('Email ou senha inválidos')
+            return redirect(url_for('login_admin'))
+        except Exception as e:
+            flash(f'Erro ao fazer login: {str(e)}')
+            return redirect(url_for('login_admin'))
+    return render_template('login.html')
+
+@app.route('/cadastro/cliente', methods=['GET', 'POST'])
+def cadastro_cliente():
+    if request.method == 'POST':
+        campos_obrigatorios = ['nome', 'email', 'senha', 'usuario', 'cpf']
+        if not all(k in request.form and request.form[k].strip() != '' for k in campos_obrigatorios):
+            flash('Todos os campos são obrigatórios', 'error')
+            return redirect(url_for('cadastro_cliente'))
+        
+        try:
+            clientes = load_data('cliente.json')
+            if any(c['email'] == request.form['email'] for c in clientes):
+                flash('Este email já está cadastrado. Por favor, use outro email.', 'error')
+                return redirect(url_for('cadastro_cliente'))
+            
+            novo_cliente = {
+                "id": gerar_id(clientes),
+                "nome": request.form['nome'],
+                "usuario": request.form['usuario'],
+                "cpf": request.form['cpf'],
+                "email": request.form['email'],
+                "senha": generate_password_hash(request.form['senha'])
+            }
+            clientes.append(novo_cliente)
+            save_data('cliente.json', clientes)
+
+            session['usuario_id'] = novo_cliente['id']
+            session['tipo_usuario'] = 'cliente'
+            
+            flash('Cadastro realizado com sucesso! Bem-vindo ao sistema.', 'success')
+            return redirect(url_for('inicio_cliente'))
+        except Exception as e:
+            flash(f'Erro ao realizar cadastro: {str(e)}', 'error')
+            return redirect(url_for('cadastro_cliente'))
+    
+    return render_template('cadastro_cliente.html')
 
 # ---------- CRUD CARDÁPIO ----------
 @app.route('/cardapio', methods=['GET'])
@@ -37,7 +192,7 @@ def adicionar_cardapio_template():
 @app.route("/adicionar_cardapio", methods=["POST"])
 def adicionar_cardapio():
     cardapio = load_data("cardapio.json")
-    item = request.form.to_dict()
+    item = {k: v.upper() if isinstance(v, str) else v for k, v in request.form.to_dict().items()}
     item["id"] = len(cardapio) + 1
     cardapio.append(item)
     save_data("cardapio.json", cardapio)
@@ -92,7 +247,10 @@ def excluir_mesa(mesa_id):
     save_data("mesa.json", mesas)
     return redirect(url_for("listar_mesa"))
 
+
 # ---------- CRUD PEDIDOS ----------
+
+
 @app.route('/pedidos', methods=['GET'])
 def listar_pedidos():
     pedidos = load_data('pedido.json')
@@ -134,7 +292,10 @@ def excluir_pedido(pedido_id):
     save_data("pedido.json", pedidos)
     return redirect(url_for("listar_pedidos"))
 
+
 # ---------- CRUD RESERVAS ----------
+
+
 @app.route('/reserva/admin', methods=['GET'])
 def listar_reserva():
     reserva = load_data('reserva.json')
@@ -144,7 +305,8 @@ def listar_reserva():
 def adicionar_reserva_template():
     return render_template("adicionar_reserva.html")
 
-@app.route("/adicionar_reserva", methods=["POST"])
+
+@app.route("/adicionar_reserva", methods=["GET", "POST"])
 def adicionar_reserva():
     reservas = load_data("reserva.json")
     nova = request.form.to_dict()
