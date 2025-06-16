@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -60,7 +59,7 @@
       </div>
      <div class="titulo" style="margin-top: 20px; margin-bottom: 15px;">
       <h1>Reserva de mesas</h1>
-      <a href="adicionar_reserva.html" style="margin-left: 45%;  position: fixed;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
+      <a href="/adicionar/reserva" style="margin-left: 45%;  position: fixed;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
      </div>
      <div class="tabela">
       <div class="tabela border">
@@ -72,24 +71,22 @@
           <th>Editar</th>
           <th>Excluir</th>
         </tr>
+        {% for nova_reserva in reserva %}
         <tr>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td>{{ nova_reserva.id}}</td>
+          <td>{{ nova_reserva.nome}}</td>
+          <td>{{ nova_reserva.cpf}}</td>
           <td>
-            <form action="editar_reserva.html" method="post" style="display: inline;">
-              <button type="submit" class="btn btn-success">
-                <i class="fas fa-edit"></i> Editar
-              </button>
-            </form>
+            <a href="/editar/reserva/{{ nova_reserva.id }}" class="btn btn-success">Editar</a>
           </td>
-          <td><form action="#" method="post" style="display: inline;">
+          <td><form action="/excluir/reserva/{{ nova_reserva.id }}" method="get" style="display: inline;">
               <button type="submit" class="btn btn-danger">
                   <span><i class="fas fa-trash"></i></span>
                   <span id="excluir"> Excluir</span>
               </button>
           </form></td>
         </tr>
+        {% endfor %}
       </div>
       </table>
     </div>
