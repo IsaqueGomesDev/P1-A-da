@@ -39,28 +39,64 @@
           </thead>
        <tbody>
           {% for item in cardapio %}
-        <tr>
-         <td>{{ item.prato }}</td>
-         <td>{{ item.categoria }}</td>
-         <td>{{ item.descricao }}</td>
-         <td>{{ item.preco }}</td>
-          <td><form action="#" method="get" style="display: inline;">
-              <button type="submit" class="btn btn-success">
-                  <span><i class="fas fa-trash"></i></span>
-                  <span id="adicionar">+</span>
-              </button>
-          </form></td>
-        </tr>
-        </tbody>
-         {% endfor %}
-      </table>
-      <div class="valor_total" style="margin-top: 10px; display: flex; justify-content: space-between; padding: 20px;">
-        <a href="/pedido/cliente">
-          <button type="submit" class="btn btn-secondary">Meus pedidos</button>
-        </a>
-      </div>
+<tr>
+  <td>{{ item.prato }}</td>
+  <td>{{ item.categoria }}</td>
+  <td>{{ item.descricao }}</td>
+  <td>{{ item.preco }}</td>
+  <td>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal{{ item.id }}">
+  + </button>
+  </td>
+</tr>
 
+<!-- MODAL PEDIDO -->
+
+<div class="modal fade" id="modal{{ item.id }}" tabindex="-1" aria-labelledby="ModalLabel{{ item.id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Fazer pedido</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+            <form action="/adicionar_pedido_cliente" method="post">
+          <input type="hidden" name="prato" value="{{ item.prato }}">
+          <div class="form-floating">
+            <input type="text" class="form-control" name="num_mesa" placeholder="Número da mesa" required>
+            <label for="num_mesa">Número da mesa</label>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-secondary">Confirmar pedido</button>
+          </div>
+        </form>
+          </div>
     </div>
+  </div>
+</div>
+{% endfor %}
+<style>
+.alert-fixo-topo {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    animation: fadeOut 1s ease-in-out 2s forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+</style>
+
+ {% if request.args.get('mensagem') %}
+    <div class="alert alert-success text-center alert-fixo-topo">
+        {{ request.args.get('mensagem') }}
+    </div>
+      {% endif %}
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
