@@ -239,6 +239,20 @@ def adicionar_mesa():
     mesas.append(nova)
     save_data("mesa.json", mesas)
     return redirect(url_for("listar_mesa"))
+    
+@app.route("/editar/mesa/<int:mesa_id>", methods=["GET", "POST"])
+def editar_mesa(mesa_id):
+    lista_mesas = load_data("mesa.json")
+    if request.method == "POST":
+        for mesa in lista_mesas:
+            if mesa["id"] == mesa_id:
+                mesa.update(request.form.to_dict())
+                break
+        save_data("mesa.json", lista_mesas)
+        return redirect(url_for("listar_mesa"))
+    else:
+        mesa = next((i for i in lista_mesas if i["id"] == mesa_id), None)
+        return render_template("editar_mesa.html", mesa=mesa)
 
 @app.route("/excluir/mesa/<int:mesa_id>")
 def excluir_mesa(mesa_id):
@@ -259,6 +273,30 @@ def listar_pedidos():
 @app.route("/adicionar/pedido")
 def adicionar_pedido_template():
     return render_template("adicionar_pedido.html")
+
+@app.route("/adicionar_pedido", methods=["POST"])
+def adicionar_pedido():
+    pedidos = load_data("pedido.json")
+    novo = request.form.to_dict()
+    novo["id"] = len(pedidos) + 1
+    pedidos.append(novo)
+    save_data("pedido.json", pedidos)
+    return redirect(url_for("listar_pedidos"))
+
+#ROTA DE ADICIONAR PEDIDO VINDO DO CLIENTE
+@app.route("/adicionar_pedido_cliente", methods=["POST"])
+def adicionar_pedido_cliente():
+    pedidos = load_data("pedido.json")
+    novo_pedido = {
+        "id": len(pedidos) + 1,
+        "num_mesa": request.form["num_mesa"],
+        "prato": request.form["prato"],
+        "status_pedido": "Em preparo"
+    }
+    pedidos.append(novo_pedido)
+    save_data("pedido.json", pedidos)
+
+    return redirect(url_for("cardapio_cliente", mensagem="Pedido realizadoo!"))
 
 @app.route("/adicionar_pedido", methods=["POST"])
 def adicionar_pedido():
@@ -305,17 +343,30 @@ def listar_reserva():
 def adicionar_reserva_template():
     return render_template("adicionar_reserva.html")
 
-
-@app.route("/adicionar_reserva", methods=["GET", "POST"])
+@app.route("/adicionar_reserva", methods=["POST"])
 def adicionar_reserva():
     reservas = load_data("reserva.json")
-    nova = request.form.to_dict()
-    nova["id"] = len(reservas) + 1
-    reservas.append(nova)
+    nova_reserva = request.form.to_dict()
+    nova_reserva["id"] = len(reservas) + 1
+    reservas.append(nova_reserva)
     save_data("reserva.json", reservas)
     return redirect(url_for("listar_reserva"))
 
-@app.route("/excluir_reserva/<int:reserva_id>")
+@app.route("/editar/reserva/<int:nova_reserva_id>", methods=["GET", "POST"])
+def editar_reserva(nova_reserva_id):
+    reserva = load_data("reserva.json")
+    if request.method == "POST":
+        for nova_reserva in reserva:
+            if nova_reserva["id"] == nova_reserva_id:
+                nova_reserva.update(request.form.to_dict())
+                break
+        save_data("reserva.json", reserva)
+        return redirect(url_for("listar_reserva"))
+    else:
+        nova_reserva = next((i for i in reserva if i["id"] == nova_reserva_id), None)
+        return render_template("editar_reserva.html", nova_reserva=nova_reserva)
+        
+@app.route("/excluir/reserva/<int:reserva_id>")
 def excluir_reserva(reserva_id):
     reservas = load_data("reserva.json")
     reservas = [r for r in reservas if r["id"] != reserva_id]
