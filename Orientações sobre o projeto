@@ -16,6 +16,10 @@ python app.py
 5 - Aproveite nossa aplicação :)
 
 
+EMAIL DO FUNCIONÁRIO: admin@restaurante.com
+SENHA DO FUNCIONÁRIO: 123456
+
+
 CRUD Pratos{
 
 nome, descrição, ingredientes, preço e categoria (entrada,
