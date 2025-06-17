@@ -51,30 +51,34 @@
 </tr>
 
 <!-- MODAL PEDIDO -->
-
 <div class="modal fade" id="modal{{ item.id }}" tabindex="-1" aria-labelledby="ModalLabel{{ item.id }}" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Fazer pedido</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-            <form action="/adicionar_pedido_cliente" method="post">
+      <form action="/adicionar_pedido_cliente" method="post">  <!-- Só UM form -->
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="ModalLabel{{ item.id }}">Fazer pedido</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
           <input type="hidden" name="prato" value="{{ item.prato }}">
-          <div class="form-floating">
-            <input type="text" class="form-control" name="num_mesa" placeholder="Número da mesa" required>
-            <label for="num_mesa">Número da mesa</label>
+          <div class="form-floating mb-3">
+            <select class="form-select" id="numMesaSelect{{ item.id }}" name="num_mesa" required>
+              <option value="" disabled selected>Escolha a mesa</option>
+              {% for mesa in mesas %}
+                <option value="{{ mesa.numero }}">Mesa {{ mesa.numero }}</option>
+              {% endfor %}
+            </select>
+            <label for="numMesaSelect{{ item.id }}">N° da mesa</label>
           </div>
-
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-secondary">Confirmar pedido</button>
-          </div>
-        </form>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-secondary">Confirmar pedido</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
+
 {% endfor %}
 <style>
 .alert-fixo-topo {
