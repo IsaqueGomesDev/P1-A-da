@@ -61,9 +61,14 @@
       <main class="form-signin w-100 m-auto">
         <form action="/editar/pedido/{{ novo.id }}" method="post">
             <div class="form-floating">
-            <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="num_mesa" value="{{ novo.num_mesa}}" id="mesa">
-            <label for="floatingInput">N° da mesa</label>
-          </div>
+              <select class="form-select" id="numMesaSelect" name="num_mesa" required>
+                <option value="" disabled selected>Escolha a mesa</option>
+                {% for mesa in mesas %}
+                  <option value="{{ mesa.numero }}">Mesa {{ mesa.numero }}</option>
+                {% endfor %}
+              </select>
+              <label for="numMesaSelect">N° da mesa</label>
+            </div>
           <br>
           <div class="form-floating">
             <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" name="prato" value="{{ novo.prato }}" id="prato">
