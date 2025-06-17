@@ -57,7 +57,7 @@
      <div class="conteiner">
      <div class="titulo" style="margin-top: 20px; margin-bottom: 15px;">
       <h1>Reserva de mesas</h1>
-      <a href="/adicionar/reserva" style="margin-left: 45%;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
+      <a href="/adicionar/reserva" style="margin-left: 20%;"><button type="submit" class="btn btn-secondary">Adicionar</button></a>
      </div>
      <div class="tabela">
       <div class="tabela border">
@@ -66,6 +66,7 @@
           <th>Id mesa</th>
           <th>Nome</th>
           <th>CPF</th>
+          <th>N° da mesa</th>
           <th>Editar</th>
           <th>Excluir</th>
         </tr>
@@ -74,6 +75,7 @@
           <td>{{ nova_reserva.id}}</td>
           <td>{{ nova_reserva.nome}}</td>
           <td>{{ nova_reserva.cpf}}</td>
+          <td>{{ nova_reserva.num_mesa}}</td>
           <td>
             <a href="/editar/reserva/{{ nova_reserva.id }}" class="btn btn-success">Editar</a>
           </td>
