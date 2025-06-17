@@ -1,3 +1,21 @@
+Para rodar o projeto:
+1 - abra o VS Code e abra um terminal prompt de comando.
+
+2 - rode os seguintes comandos:
+
+python -m venv venv
+
+pip install flask
+
+python app.py
+
+3 - No terminal aparecerá um link local. (exemplo:http://127.0.0.1:5000)
+
+4 - Segure a tecla CTRL e clique no link ou copie ele e coloque em um navegador.
+
+5 - Aproveite nossa aplicação :)
+
+
 CRUD Pratos{
 
 nome, descrição, ingredientes, preço e categoria (entrada,
@@ -11,13 +29,6 @@ id_da_mesa, prato, status (em preparo, pronto, entregue), observações
 
 }
 
-CRUD Pedidos_Pendentes{
-
-CRUD da aba de confirmação após adicionar os pratos no pedido{
-
-id_pratos, preco
-
-}}
 
 CRUD Usuario{
 
@@ -25,15 +36,10 @@ Nome, Cpf, Usuario, email, senha
 
 }}
 
-CRUD Reserva_pendente{
-
-id_usuario, nome, cpf, id_mesa
-
-}
 
 CRUD Reserva_Definitiva{
 
-id_reserva
+nome, id_mesa, cpf
 
 }
 
