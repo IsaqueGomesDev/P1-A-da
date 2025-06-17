@@ -14,7 +14,7 @@ def load_data(filename):
         caminho = os.path.join(DATA_DIR, filename)
         if not os.path.exists(caminho):
             with open(caminho, 'w') as f:
-                json.dump([], f)  # Corrigido para lista
+                json.dump([], f)
             return []
         
         with open(caminho, 'r') as f:
@@ -93,24 +93,16 @@ def admin():
 def login_cliente():
     if request.method == 'POST':
         try:
-            # Verifica se os campos foram preenchidos
             if not request.form.get('email') or not request.form.get('senha'):
                 flash('Por favor, preencha todos os campos', 'error')
                 return redirect(url_for('login_cliente'))
-
-            # Carrega os clientes
             clientes = load_data('cliente.json')
-            
-            # Procura o cliente pelo email
             cliente = next((c for c in clientes if c['email'].lower() == request.form['email'].lower()), None)
             
             if not cliente:
                 flash('Email não encontrado', 'error')
                 return redirect(url_for('login_cliente'))
-            
-            # Verifica a senha
             if check_password_hash(cliente['senha'], request.form['senha']):
-                # Login bem-sucedido
                 session['usuario_id'] = cliente['id']
                 session['tipo_usuario'] = 'cliente'
                 session['nome_usuario'] = cliente['nome']
@@ -179,7 +171,14 @@ def cadastro_cliente():
     
     return render_template('cadastro_cliente.html')
 
-# ---------- CRUD CARDÁPIO ----------
+
+
+
+
+
+
+
+
 @app.route('/cardapio', methods=['GET'])
 def listar_cardapio():
     cardapio = load_data('cardapio.json')
@@ -221,14 +220,14 @@ def excluir_cardapio(item_id):
     return redirect(url_for("listar_cardapio"))
 
 
-# ---------- CRUD MESAS ----------
+
 @app.route('/mesas', methods=['GET'])
 def listar_mesa():
     mesas = load_data('mesa.json')
 
     for mesa in mesas:
         status = mesa.get('status', '')
-        mesa['status'] = status.upper()[:1]  # ex: "disponivel" → "D"
+        mesa['status'] = status.upper()[:1]
 
     return render_template('mesas.html', mesas=mesas)
 
@@ -266,10 +265,6 @@ def excluir_mesa(mesa_id):
     save_data("mesa.json", mesas)
     return redirect(url_for("listar_mesa"))
 
-
-# ---------- CRUD PEDIDOS ----------
-
-
 @app.route('/pedidos', methods=['GET'])
 def listar_pedidos():
     pedidos = load_data('pedido.json')
@@ -294,7 +289,6 @@ def adicionar_pedido():
 def pedido_cliente():
     return render_template('pedido_cliente.html')
 
-#ROTA DE ADICIONAR PEDIDO VINDO DO CLIENTE
 @app.route("/adicionar_pedido_cliente", methods=["POST"])
 def adicionar_pedido_cliente():
     pedidos = load_data("pedido.json")
@@ -334,10 +328,6 @@ def excluir_pedido(pedido_id):
     save_data("pedido.json", pedidos)
     return redirect(url_for("listar_pedidos"))
 
-
-# ---------- CRUD RESERVAS ----------
-
-
 @app.route('/reserva/admin', methods=['GET'])
 def listar_reserva():
     reserva = load_data('reserva.json')
@@ -355,11 +345,10 @@ def adicionar_reserva():
     reservas = load_data("reserva.json")
     nova_reserva = request.form.to_dict()
     nova_reserva["id"] = len(reservas) + 1
-    nova_reserva["id_mesa"] = int(nova_reserva["id_mesa"])  # converter pra int
+    nova_reserva["id_mesa"] = int(nova_reserva["id_mesa"]) 
     reservas.append(nova_reserva)
     save_data("reserva.json", reservas)
 
-    # Atualizar o status da mesa para "ocupado"
     mesas = load_data("mesa.json")
     for mesa in mesas:
         if mesa["id"] == nova_reserva["id_mesa"]:
@@ -374,11 +363,9 @@ def adicionar_reserva_cliente():
     reservas = load_data("reserva.json")
     nova_reserva = request.form.to_dict()
     nova_reserva["id"] = len(reservas) + 1
-    nova_reserva["id_mesa"] = int(nova_reserva["id_mesa"])  # converter pra int
+    nova_reserva["id_mesa"] = int(nova_reserva["id_mesa"]) 
     reservas.append(nova_reserva)
     save_data("reserva.json", reservas)
-
-    # Atualizar o status da mesa para "ocupado"
     mesas = load_data("mesa.json")
     for mesa in mesas:
         if mesa["id"] == nova_reserva["id_mesa"]:
@@ -393,11 +380,8 @@ def editar_reserva(nova_reserva_id):
     reservas = load_data("reserva.json")
     mesas = load_data("mesa.json")
     mesas_disponiveis = [mesa for mesa in mesas if mesa["status"] == "disponivel"]
-
-    # Para a edição, queremos incluir a mesa atual da reserva mesmo que não esteja "disponível"
     reserva_atual = next((r for r in reservas if r["id"] == nova_reserva_id), None)
     if reserva_atual:
-        # incluir mesa atual na lista de opções para editar
         mesa_reserva = next((m for m in mesas if m["id"] == reserva_atual.get("id_mesa")), None)
         if mesa_reserva and mesa_reserva not in mesas_disponiveis:
             mesas_disponiveis.append(mesa_reserva)
@@ -405,19 +389,14 @@ def editar_reserva(nova_reserva_id):
     if request.method == "POST":
         for r in reservas:
             if r["id"] == nova_reserva_id:
-                # Antes de atualizar, liberar mesa antiga
                 mesas = load_data("mesa.json")
                 for mesa in mesas:
                     if mesa["id"] == r.get("id_mesa"):
                         mesa["status"] = "disponivel"
                         break
                 save_data("mesa.json", mesas)
-
-                # Atualiza a reserva com os novos dados
                 r.update(request.form.to_dict())
                 r["id_mesa"] = int(r["id_mesa"])
-
-                # Marca a nova mesa como ocupada
                 for mesa in mesas:
                     if mesa["id"] == r["id_mesa"]:
                         mesa["status"] = "ocupado"
@@ -437,7 +416,6 @@ def excluir_reserva(reserva_id):
     reserva_a_excluir = next((r for r in reservas if r["id"] == reserva_id), None)
 
     if reserva_a_excluir:
-        # Liberar a mesa da reserva excluída
         for mesa in mesas:
             if mesa["id"] == reserva_a_excluir.get("id_mesa"):
                 mesa["status"] = "disponivel"
@@ -467,7 +445,7 @@ def inicio_cliente():
     pedidos_acompanhamento = []
 
     if request.method == "POST":
-        num_mesa = request.form.get('num_mesa')  # número da mesa vindo do formulário
+        num_mesa = request.form.get('num_mesa') 
         pedidos = load_data("pedido.json")
         if num_mesa:
             pedidos_acompanhamento = [
